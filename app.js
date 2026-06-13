@@ -302,7 +302,7 @@ function initDatabase() {
     // إجبار الأجهزة القديمة التي فتحت الموقع مسبقاً على التحول لوضع الأونلاين
     if (db.settings) {
        db.settings.offlineMode = false;
-       db.settings.gasUrl = 'https://script.google.com/macros/s/AKfycbzQE5jVPI2bEXq2QyJiW-_7-N8WM65iEe1VgKtyIiTKpKUNvlimsp8lhsjx9VUY2Kei/exec';
+       db.settings.gasUrl = 'https://script.google.com/macros/s/AKfycby-Y2AxRA80WT_peh7jgFeDI5AOBprenkvOFmqng96HI5jXwUF73XEFXOy5ZafYdPkWDg/exec';
     }
 
     // هجرة البيانات لحماية الحسابات القديمة
