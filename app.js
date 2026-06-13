@@ -330,8 +330,7 @@ function initDatabase() {
   applyCompanyBranding();
   
   // استدعاء البيانات من جوجل شيت فور تهيئة الموقع
-  loadFromServer(); 
-}
+  }
     // هجرة البيانات: التأكد من أن جميع الحسابات القديمة تمتلك كلمة مرور لمنع فشل تسجيل الدخول
     if (db.users) {
       let updated = false;
