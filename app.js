@@ -17,7 +17,7 @@ let db = {
   auditLogs: [],
   settings: {
     gasUrl: 'https://script.google.com/macros/s/AKfycbzQE5jVPI2bEXq2QyJiW-_7-N8WM65iEe1VgKtyIiTKpKUNvlimsp8lhsjx9VUY2Kei/exec',
-    offlineMode: true,
+    offlineMode: false,
     companyName: 'شركة SKY',
     companyLogo: '', // Base64 or URL
     templates: {
@@ -151,7 +151,7 @@ const defaultSeedData = {
   ],
   settings: {
     gasUrl: '',
-    offlineMode: true,
+    offlineMode: false,
     companyName: 'شركة SKY',
     companyLogo: '',
     templates: {
@@ -298,6 +298,40 @@ function initDatabase() {
     if (!db.settings.templates) {
       db.settings.templates = defaultSeedData.settings.templates;
     }
+
+    // إجبار الأجهزة القديمة التي فتحت الموقع مسبقاً على التحول لوضع الأونلاين
+    if (db.settings) {
+       db.settings.offlineMode = false;
+       db.settings.gasUrl = 'https://script.google.com/macros/s/AKfycbzQE5jVPI2bEXq2QyJiW-_7-N8WM65iEe1VgKtyIiTKpKUNvlimsp8lhsjx9VUY2Kei/exec';
+    }
+
+    // هجرة البيانات لحماية الحسابات القديمة
+    if (db.users) {
+      let updated = false;
+      db.users.forEach(u => {
+        if (!u.password) {
+          const seedUser = defaultSeedData.users.find(su => su.username === u.username);
+          u.password = seedUser ? seedUser.password : '123';
+          updated = true;
+        }
+      });
+      if (updated) {
+        saveToLocalStorage();
+      }
+    }
+  } else {
+    db = defaultSeedData;
+    db.settings.offlineMode = false;
+    db.settings.gasUrl = 'https://script.google.com/macros/s/AKfycbzQE5jVPI2bEXq2QyJiW-_7-N8WM65iEe1VgKtyIiTKpKUNvlimsp8lhsjx9VUY2Kei/exec';
+    generateSeededInstallments();
+    saveToLocalStorage();
+  }
+  
+  applyCompanyBranding();
+  
+  // استدعاء البيانات من جوجل شيت فور تهيئة الموقع
+  loadFromServer(); 
+}
     // هجرة البيانات: التأكد من أن جميع الحسابات القديمة تمتلك كلمة مرور لمنع فشل تسجيل الدخول
     if (db.users) {
       let updated = false;
