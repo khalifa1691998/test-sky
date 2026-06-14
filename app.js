@@ -288,16 +288,33 @@ function tryAutoLogin() {
   return false;
 }
 
-function initDatabase() {
+// ... (بداية الملف كما هي)
+
+// 1. الدالة المعدلة initDatabase
+async function initDatabase() {
   const localData = localStorage.getItem('sky_erp_db');
   if (localData) {
     db = JSON.parse(localData);
-    if (!db.brands) db.brands = ['Oppo', 'Samsung', 'iPhone', 'Xiaomi'];
-    if (!db.settings.companyName) db.settings.companyName = 'شركة SKY';
-    if (!db.settings.companyLogo) db.settings.companyLogo = '';
-    if (!db.settings.templates) {
-      db.settings.templates = defaultSeedData.settings.templates;
-    }
+    renderUI(); 
+  }
+  await loadFromServer(); 
+}
+
+// 2. الدالة الجديدة loadFromServer
+async function loadFromServer() {
+  if (!db.settings.gasUrl || db.settings.offlineMode) return;
+  
+  try {
+    const response = await fetch(db.settings.gasUrl);
+    const data = await response.json();
+    db = data;
+    localStorage.setItem('sky_erp_db', JSON.stringify(db));
+    renderUI();
+    console.log("تم تحديث البيانات من السيرفر بنجاح");
+  } catch (error) {
+    console.error("فشل سحب البيانات من السيرفر:", error);
+  }
+}
     // هجرة البيانات: التأكد من أن جميع الحسابات القديمة تمتلك كلمة مرور لمنع فشل تسجيل الدخول
     if (db.users) {
       let updated = false;
