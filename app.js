@@ -150,8 +150,8 @@ const defaultSeedData = {
     { user: 'خليفة (ADMIN)', actionType: 'إنشاء عقد', details: 'إنشاء عقد تقسيط رقم 218360 للعميل محمد بطيخه لجهاز Oppo a3x 128/4', timestamp: '2026-06-09 18:16' }
   ],
   settings: {
-    gasUrl: 'https://script.google.com/macros/s/AKfycby-Y2AxRA80WT_peh7jgFeDI5AOBprenkvOFmqng96HI5jXwUF73XEFXOy5ZafYdPkWDg/exec',
-    offlineMode: false,
+    gasUrl: '',
+    offlineMode: true,
     companyName: 'شركة SKY',
     companyLogo: '',
     templates: {
@@ -288,33 +288,16 @@ function tryAutoLogin() {
   return false;
 }
 
-// ... (بداية الملف كما هي)
-
-// 1. الدالة المعدلة initDatabase
-async function initDatabase() {
+function initDatabase() {
   const localData = localStorage.getItem('sky_erp_db');
   if (localData) {
     db = JSON.parse(localData);
-    renderUI(); 
-  }
-  await loadFromServer(); 
-}
-
-// 2. الدالة الجديدة loadFromServer
-async function loadFromServer() {
-  if (!db.settings.gasUrl || db.settings.offlineMode) return;
-  
-  try {
-    const response = await fetch(db.settings.gasUrl);
-    const data = await response.json();
-    db = data;
-    localStorage.setItem('sky_erp_db', JSON.stringify(db));
-    renderUI();
-    console.log("تم تحديث البيانات من السيرفر بنجاح");
-  } catch (error) {
-    console.error("فشل سحب البيانات من السيرفر:", error);
-  }
-}
+    if (!db.brands) db.brands = ['Oppo', 'Samsung', 'iPhone', 'Xiaomi'];
+    if (!db.settings.companyName) db.settings.companyName = 'شركة SKY';
+    if (!db.settings.companyLogo) db.settings.companyLogo = '';
+    if (!db.settings.templates) {
+      db.settings.templates = defaultSeedData.settings.templates;
+    }
     // هجرة البيانات: التأكد من أن جميع الحسابات القديمة تمتلك كلمة مرور لمنع فشل تسجيل الدخول
     if (db.users) {
       let updated = false;
@@ -391,11 +374,10 @@ async function syncWithAppsScript(action, payload = {}) {
     const response = await fetch(db.settings.gasUrl, {
       method: 'POST',
       mode: 'cors',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action, data: payload })
     });
-    
-    // التعديل: إجبار النظام على جلب آخر تحديث من الشيت بعد أي عملية حفظ
-    await loadFromServer(); 
     return await response.json();
   } catch (error) {
     console.error('Server sync error:', error);
