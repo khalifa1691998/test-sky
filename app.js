@@ -2928,3 +2928,16 @@ document.getElementById('login-password-input').addEventListener('keypress', (e)
 // ================= INITIALIZATION =================
 initDatabase();
 tryAutoLogin();
+
+// ===== AUTO REALTIME SYNC =====
+document.addEventListener('DOMContentLoaded', () => {
+  setInterval(async () => {
+    try {
+      if (!db.settings.offlineMode && db.settings.gasUrl) {
+        await loadFromServer();
+      }
+    } catch (e) {
+      console.error('Auto sync failed:', e);
+    }
+  }, 3000);
+});
