@@ -17,7 +17,7 @@ let db = {
   auditLogs: [],
   settings: {
     gasUrl: 'https://script.google.com/macros/s/AKfycbzQE5jVPI2bEXq2QyJiW-_7-N8WM65iEe1VgKtyIiTKpKUNvlimsp8lhsjx9VUY2Kei/exec',
-    offlineMode: false,
+    offlineMode: true,
     companyName: 'شركة SKY',
     companyLogo: '', // Base64 or URL
     templates: {
@@ -150,7 +150,7 @@ const defaultSeedData = {
     { user: 'خليفة (ADMIN)', actionType: 'إنشاء عقد', details: 'إنشاء عقد تقسيط رقم 218360 للعميل محمد بطيخه لجهاز Oppo a3x 128/4', timestamp: '2026-06-09 18:16' }
   ],
   settings: {
-    gasUrl: '',
+    gasUrl: 'https://script.google.com/macros/s/AKfycby-Y2AxRA80WT_peh7jgFeDI5AOBprenkvOFmqng96HI5jXwUF73XEFXOy5ZafYdPkWDg/exec',
     offlineMode: false,
     companyName: 'شركة SKY',
     companyLogo: '',
@@ -374,10 +374,11 @@ async function syncWithAppsScript(action, payload = {}) {
     const response = await fetch(db.settings.gasUrl, {
       method: 'POST',
       mode: 'cors',
-      redirect: 'follow',
-      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action, data: payload })
     });
+    
+    // التعديل: إجبار النظام على جلب آخر تحديث من الشيت بعد أي عملية حفظ
+    await loadFromServer(); 
     return await response.json();
   } catch (error) {
     console.error('Server sync error:', error);
